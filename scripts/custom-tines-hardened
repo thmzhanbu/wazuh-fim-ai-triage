@@ -1,0 +1,133 @@
+#!/usr/bin/env python3
+"""Proposed reference improvement; offline-tested, not deployed in the lab.
+
+Wazuh arguments: alert_file, api_key (unused), hook_url.
+One POST only. A 2xx response acknowledges HTTP delivery, not AI completion.
+"""
+
+import json
+import re
+import sys
+import urllib.error
+import urllib.parse
+import urllib.request
+from datetime import datetime, timezone
+from pathlib import Path
+
+LOG_FILE = Path("/var/ossec/logs/integrations.log")
+ALLOWED_RULES = frozenset({"100100", "100101", "100102"})
+MAX_BYTES = 1024 * 1024
+TIMEOUT_SECONDS = 15
+
+
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    """Do not forward alert contents or webhook credentials to a redirect target."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
+def safe_id(value):
+    if isinstance(value, (str, int)) and not isinstance(value, bool):
+        value = str(value)
+        if re.fullmatch(r"[A-Za-z0-9_.:-]{1,128}", value):
+            return value
+    return "unavailable"
+
+
+def write_log(log_path, event, *, alert_id="unavailable", rule_id="unavailable", status=None):
+    """Fixed event labels and bounded identifiers; never exception strings or URLs."""
+    record = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "component": "custom-tines-hardened",
+        "event": event,
+        "alert_id": safe_id(alert_id),
+        "rule_id": safe_id(rule_id),
+    }
+    if isinstance(status, int):
+        record["http_status"] = status
+    try:
+        with Path(log_path).open("a", encoding="utf-8") as handle:
+            handle.write(json.dumps(record, separators=(",", ":")) + "\n")
+    except OSError:
+        print('{"error":"integration_log_unavailable"}', file=sys.stderr)
+
+
+def valid_webhook(url):
+    if not isinstance(url, str) or any(c.isspace() or ord(c) < 32 for c in url):
+        return False
+    try:
+        parts = urllib.parse.urlsplit(url)
+        return bool(parts.scheme == "https" and parts.hostname
+                    and parts.username is None and parts.password is None
+                    and not parts.fragment and (parts.port is None or parts.port == 443))
+    except ValueError:
+        return False
+
+
+def main(argv=None, *, log_path=LOG_FILE, opener=None):
+    argv = sys.argv if argv is None else argv
+    alert_id, rule_id = "unavailable", "unavailable"
+
+    def record(event, status=None):
+        write_log(log_path, event, alert_id=alert_id, rule_id=rule_id, status=status)
+
+    if len(argv) < 4:
+        record("invalid_arguments")
+        return 1
+    try:
+        with open(argv[1], "rb") as handle:
+            payload = handle.read(MAX_BYTES + 1)
+        if len(payload) > MAX_BYTES:
+            record("payload_too_large")
+            return 1
+        alert = json.loads(payload)
+        if not isinstance(alert, dict) or not isinstance(alert.get("rule"), dict):
+            raise ValueError("Invalid alert shape")
+        raw_id = alert["rule"].get("id")
+        if not isinstance(raw_id, (str, int)) or isinstance(raw_id, bool):
+            raise ValueError("Invalid rule identifier")
+        rule_id = str(raw_id)
+        alert_id = safe_id(alert.get("id"))
+        if rule_id not in ALLOWED_RULES:
+            record("rule_filtered")
+            return 0
+        if not isinstance(alert.get("syscheck"), dict):
+            raise ValueError("Missing FIM object")
+        fim = alert["syscheck"]
+        if (not isinstance(fim.get("path"), str) or not fim["path"]
+                or fim.get("event") not in {"added", "modified", "deleted"}):
+            raise ValueError("Invalid FIM shape")
+    except (OSError, ValueError, TypeError, RecursionError):
+        record("invalid_payload")
+        return 1
+
+    if not valid_webhook(argv[3]):
+        record("invalid_webhook")
+        return 1
+
+    request = urllib.request.Request(
+        argv[3], data=payload, method="POST",
+        headers={"Content-Type": "application/json", "User-Agent": "wazuh-tines-fim-lab/2.0-reference"},
+    )
+    opener = opener if opener is not None else urllib.request.build_opener(NoRedirect())
+    try:
+        with opener.open(request, timeout=TIMEOUT_SECONDS) as response:
+            status = response.status
+            if not 200 <= status < 300:
+                record("http_rejected", status)
+                return 1
+        record("http_acknowledged", status)
+        return 0
+    except urllib.error.HTTPError as error:
+        record("redirect_rejected" if 300 <= error.code < 400 else "http_rejected", error.code)
+    except (urllib.error.URLError, TimeoutError, OSError):
+        record("transport_failed")
+    except Exception:
+        # Sanitized fallback: libraries can include the secret URL in exception text.
+        record("unexpected_failure")
+    return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

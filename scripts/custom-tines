@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+"""Historical baseline reconstructed from the supplied lab conversation.
+
+This is not a direct export or checksum-verified copy of the deployed VM file.
+The original behavior is retained for explanation, including exception-text
+logging and the standard redirect policy. See docs/code-walkthrough.md for
+limitations and custom-tines-hardened for a separate, undeployed reference.
+"""
+
+import json
+import sys
+import urllib.request
+import urllib.error
+from datetime import datetime, timezone
+
+LOG_FILE = "/var/ossec/logs/integrations.log"
+ALLOWED_RULES = {"100100", "100101", "100102"}
+
+def log(message):
+    timestamp = datetime.now(timezone.utc).isoformat()
+    with open(LOG_FILE, "a", encoding="utf-8") as log_file:
+        log_file.write(f"{timestamp} custom-tines: {message}\n")
+
+try:
+    if len(sys.argv) < 4:
+        raise ValueError("Missing integration arguments")
+
+    alert_file = sys.argv[1]
+    webhook_url = sys.argv[3]
+
+    with open(alert_file, "r", encoding="utf-8") as file:
+        alert = json.load(file)
+
+    rule_id = str(alert.get("rule", {}).get("id", ""))
+
+    if rule_id not in ALLOWED_RULES:
+        sys.exit(0)
+
+    payload = json.dumps(alert, separators=(",", ":")).encode("utf-8")
+    request = urllib.request.Request(
+        webhook_url,
+        data=payload,
+        headers={
+            "Content-Type": "application/json",
+            "User-Agent": "wazuh-tines-fim-lab/1.0"
+        },
+        method="POST"
+    )
+
+    with urllib.request.urlopen(request, timeout=15) as response:
+        if not 200 <= response.status < 300:
+            raise RuntimeError(f"Webhook returned HTTP {response.status}")
+
+    log(f"Successfully forwarded rule {rule_id}")
+
+except Exception as error:
+    log(f"Forwarding failed: {type(error).__name__}: {error}")
+    sys.exit(1)
