@@ -1,0 +1,9 @@
+<!-- Insert INSIDE an existing ossec_config block in /var/ossec/etc/ossec.conf.
+     Replace the whole example URL privately with the generated live webhook URL.
+     Escape & as &amp; in XML. Never commit the configured file. -->
+<integration>
+  <name>custom-tines</name>
+  <hook_url>https://webhook.example.invalid/replace-with-generated-live-url</hook_url>
+  <rule_id>100100,100101,100102</rule_id>
+  <alert_format>json</alert_format>
+</integration>

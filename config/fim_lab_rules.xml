@@ -1,0 +1,30 @@
+<!-- Reconstructed from the displayed lab rules; not a direct export from the VM. -->
+<group name="syscheck,fim_lab,">
+  <rule id="100100" level="10">
+    <if_sid>554</if_sid>
+    <field name="file" type="pcre2">(?i)^c:\\fim-lab\\critical-config\.txt$</field>
+    <description>Critical configuration file created in the Windows FIM lab.</description>
+    <group>fim_lab,critical_file,</group>
+  </rule>
+
+  <rule id="100101" level="12">
+    <if_sid>550</if_sid>
+    <field name="file" type="pcre2">(?i)^c:\\fim-lab\\critical-config\.txt$</field>
+    <description>Critical configuration file modified in the Windows FIM lab.</description>
+    <mitre>
+      <id>T1565.001</id>
+    </mitre>
+    <group>fim_lab,critical_file,</group>
+  </rule>
+
+  <rule id="100102" level="12">
+    <if_sid>553</if_sid>
+    <field name="file" type="pcre2">(?i)^c:\\fim-lab\\critical-config\.txt$</field>
+    <description>Critical configuration file deleted from the Windows FIM lab.</description>
+    <mitre>
+      <id>T1070.004</id>
+      <id>T1485</id>
+    </mitre>
+    <group>fim_lab,critical_file,</group>
+  </rule>
+</group>
