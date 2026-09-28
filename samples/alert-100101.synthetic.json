@@ -1,0 +1,61 @@
+{
+  "timestamp": "2026-09-25T17:36:00.000+0000",
+  "id": "synthetic-100101",
+  "rule": {
+    "id": "100101",
+    "level": 12,
+    "description": "Critical configuration file modified in the Windows FIM lab.",
+    "groups": [
+      "syscheck",
+      "fim_lab",
+      "critical_file"
+    ],
+    "mitre": {
+      "id": [
+        "T1565.001"
+      ]
+    }
+  },
+  "agent": {
+    "id": "001",
+    "name": "win11-fim-demo",
+    "ip": "192.0.2.130"
+  },
+  "manager": {
+    "name": "wazuh-manager-demo"
+  },
+  "syscheck": {
+    "path": "c:\\fim-lab\\critical-config.txt",
+    "event": "modified",
+    "mode": "whodata",
+    "audit": {
+      "user": {
+        "name": "SOC-LAB"
+      },
+      "process": {
+        "id": "4242",
+        "name": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+      }
+    },
+    "changed_attributes": [
+      "size",
+      "mtime",
+      "md5",
+      "sha1",
+      "sha256"
+    ],
+    "diff": "1a2\n> status=modified-by-lab\n",
+    "size_before": "21",
+    "md5_before": "3e61253b8006ec5ae5fe953539361324",
+    "sha1_before": "dae2efbd3f30d75cd6eab60c4fb0ef139184d881",
+    "sha256_before": "1210d1fd5ff0053a20f010ee42c36cd08dc2abb675c4cccf72bb9ec789c053e7",
+    "size_after": "45",
+    "md5_after": "e7ff8b644ff69a255ede94befb0e2dc7",
+    "sha1_after": "7279970ceee7e3f60e12ebb396ea8a0d8c52532b",
+    "sha256_after": "138970a1574160dbfea2d7653d8284b719a67c2f854bd50634b3a8f3aa149082"
+  },
+  "decoder": {
+    "name": "syscheck_integrity_changed"
+  },
+  "location": "syscheck"
+}

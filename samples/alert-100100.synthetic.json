@@ -1,0 +1,44 @@
+{
+  "timestamp": "2026-09-25T17:35:00.000+0000",
+  "id": "synthetic-100100",
+  "rule": {
+    "id": "100100",
+    "level": 10,
+    "description": "Critical configuration file created in the Windows FIM lab.",
+    "groups": [
+      "syscheck",
+      "fim_lab",
+      "critical_file"
+    ]
+  },
+  "agent": {
+    "id": "001",
+    "name": "win11-fim-demo",
+    "ip": "192.0.2.130"
+  },
+  "manager": {
+    "name": "wazuh-manager-demo"
+  },
+  "syscheck": {
+    "path": "c:\\fim-lab\\critical-config.txt",
+    "event": "added",
+    "mode": "whodata",
+    "audit": {
+      "user": {
+        "name": "SOC-LAB"
+      },
+      "process": {
+        "id": "4242",
+        "name": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+      }
+    },
+    "size_after": "21",
+    "md5_after": "3e61253b8006ec5ae5fe953539361324",
+    "sha1_after": "dae2efbd3f30d75cd6eab60c4fb0ef139184d881",
+    "sha256_after": "1210d1fd5ff0053a20f010ee42c36cd08dc2abb675c4cccf72bb9ec789c053e7"
+  },
+  "decoder": {
+    "name": "syscheck_new_entry"
+  },
+  "location": "syscheck"
+}

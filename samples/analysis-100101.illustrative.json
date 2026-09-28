@@ -1,0 +1,22 @@
+{
+  "alert_id": "synthetic-100101",
+  "rule_id": "100101",
+  "risk_classification": "medium",
+  "confidence": "medium",
+  "summary": "The synthetic Windows lab alert records a file modification by SOC-LAB using PowerShell. The supplied diff adds status=modified-by-lab. Authorization and business impact are not established by this alert.",
+  "evidence": [
+    "syscheck.event: modified",
+    "syscheck.path: c:\\fim-lab\\critical-config.txt",
+    "syscheck.diff adds status=modified-by-lab",
+    "syscheck.audit.user.name: SOC-LAB"
+  ],
+  "mitre_techniques": [
+    "T1565.001"
+  ],
+  "recommended_actions": [
+    "Check whether the modification was an approved lab change.",
+    "Compare the content change and hashes with the expected baseline.",
+    "Require human approval before any containment action."
+  ],
+  "human_review_required": true
+}

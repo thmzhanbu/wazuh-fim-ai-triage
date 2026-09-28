@@ -1,0 +1,50 @@
+{
+  "timestamp": "2026-09-25T17:37:00.000+0000",
+  "id": "synthetic-100102",
+  "rule": {
+    "id": "100102",
+    "level": 12,
+    "description": "Critical configuration file deleted from the Windows FIM lab.",
+    "groups": [
+      "syscheck",
+      "fim_lab",
+      "critical_file"
+    ],
+    "mitre": {
+      "id": [
+        "T1070.004",
+        "T1485"
+      ]
+    }
+  },
+  "agent": {
+    "id": "001",
+    "name": "win11-fim-demo",
+    "ip": "192.0.2.130"
+  },
+  "manager": {
+    "name": "wazuh-manager-demo"
+  },
+  "syscheck": {
+    "path": "c:\\fim-lab\\critical-config.txt",
+    "event": "deleted",
+    "mode": "whodata",
+    "audit": {
+      "user": {
+        "name": "SOC-LAB"
+      },
+      "process": {
+        "id": "4242",
+        "name": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+      }
+    },
+    "size_before": "45",
+    "md5_before": "e7ff8b644ff69a255ede94befb0e2dc7",
+    "sha1_before": "7279970ceee7e3f60e12ebb396ea8a0d8c52532b",
+    "sha256_before": "138970a1574160dbfea2d7653d8284b719a67c2f854bd50634b3a8f3aa149082"
+  },
+  "decoder": {
+    "name": "syscheck_integrity_changed"
+  },
+  "location": "syscheck"
+}
