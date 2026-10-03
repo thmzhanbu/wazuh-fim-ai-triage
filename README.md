@@ -88,6 +88,11 @@ The AI risk classification is an assessment, not a verdict. Model-reported confi
 
 `human_review_required` is an advisory output field; there is no enforced approval queue. Delivery retries, durable buffering, deduplication, alert notifications, and SIEM writeback are not implemented. See the roadmap for the next engineering steps.
 
+
+## Related security operations project
+
+[Security Operations: Endpoint Lifecycle Automation with Wazuh and Ansible](https://github.com/thmzhanbu/security-operations-endpoint-automation) covers repeatable Linux agent deployment, service outage recovery, package rollback and restoration, and manager-side coverage reporting. Together, the projects demonstrate endpoint operations and alert triage. They are separate personal labs; no automated integration between them was demonstrated.
+
 ## References
 
 - [Wazuh custom integrations](https://documentation.wazuh.com/current/user-manual/manager/integration-with-external-apis.html)
