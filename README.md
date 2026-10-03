@@ -91,7 +91,7 @@ The AI risk classification is an assessment, not a verdict. Model-reported confi
 
 ## Related security operations project
 
-[Security Operations: Endpoint Lifecycle Automation with Wazuh and Ansible](https://github.com/thmzhanbu/security-operations-endpoint-automation) covers repeatable Linux agent deployment, service outage recovery, package rollback and restoration, and manager-side coverage reporting. Together, the projects demonstrate endpoint operations and alert triage. They are separate personal labs; no automated integration between them was demonstrated.
+[Server Security Controls: Agent Lifecycle Automation and Coverage Monitoring](https://github.com/thmzhanbu/security-operations-endpoint-automation) covers repeatable Linux agent deployment, service outage recovery, package rollback and restoration, and manager-side coverage reporting. Together, the projects demonstrate endpoint operations and alert triage. They are separate personal labs; no automated integration between them was demonstrated.
 
 ## References
 
